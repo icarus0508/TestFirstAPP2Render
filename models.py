@@ -16,9 +16,22 @@ class Member(db.Model):
     
     # Relationship to events
     events = db.relationship('Event', secondary=participation, back_populates='participants')
+    profile_image = db.Column(db.String(255)) # Path to uploaded image
 
     def __repr__(self):
         return f'<Member {self.name}>'
+
+class Photo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Optional: Link to uploader (Member)
+    # uploader_id = db.Column(db.Integer, db.ForeignKey('member.id'))
+
+    def __repr__(self):
+        return f'<Photo {self.filename}>'
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -29,6 +42,8 @@ class Event(db.Model):
 
     # Relationship to members
     participants = db.relationship('Member', secondary=participation, back_populates='events')
+    # Relationship to photos
+    photos = db.relationship('Photo', backref='event', lazy=True)
 
     def __repr__(self):
         return f'<Event {self.title}>'

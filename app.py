@@ -1,7 +1,8 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from werkzeug.utils import secure_filename
 from database import db
-from models import Member, Event
+from models import Member, Event, Photo
 from datetime import datetime
 
 app = Flask(__name__)
@@ -15,6 +16,17 @@ if database_url and database_url.startswith("postgres://"):
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///events.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Upload Configuration
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 db.init_app(app)
 
@@ -37,7 +49,17 @@ def members():
         if Member.query.filter_by(email=email).first():
             flash('Email already exists!')
         else:
-            new_member = Member(name=name, email=email)
+            filename = None
+            if 'profile_image' in request.files:
+                file = request.files['profile_image']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    # Unique filename to prevent overwrite or just keep simple for now
+                    # Adding timestamp to ensure uniqueness could be good, but let's keep it simple
+                    filename = f"{datetime.now().timestamp()}_{filename}"
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            new_member = Member(name=name, email=email, profile_image=filename)
             db.session.add(new_member)
             db.session.commit()
             flash('Member added successfully!')
@@ -78,6 +100,19 @@ def event_detail(event_id):
     event = Event.query.get_or_404(event_id)
     
     if request.method == 'POST':
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filename = f"event_{event_id}_{datetime.now().timestamp()}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                
+                new_photo = Photo(filename=filename, event=event)
+                db.session.add(new_photo)
+                db.session.commit()
+                flash('Photo uploaded successfully!')
+            return redirect(url_for('event_detail', event_id=event_id))
+
         member_id = request.form.get('member_id')
         if member_id:
             member = Member.query.get(member_id)
@@ -93,6 +128,15 @@ def event_detail(event_id):
     available_members = [m for m in Member.query.all() if m not in event.participants]
     
     return render_template('event_detail.html', event=event, available_members=available_members)
+
+@app.route('/albums')
+def albums():
+    # Only show events that have photos
+    events_with_photos = Event.query.join(Photo).group_by(Event.id).all()
+    # Or just show all events and let template handle empty ones? 
+    # Let's show all for now so users know they can find albums for any event
+    all_events = Event.query.all()
+    return render_template('albums.html', events=all_events)
 
 if __name__ == '__main__':
     app.run(debug=True)

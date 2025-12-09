@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container nav-container">
@@ -15,19 +17,20 @@
                 <li><a href="{{ url_for('index') }}">Dashboard</a></li>
                 <li><a href="{{ url_for('members') }}">Members</a></li>
                 <li><a href="{{ url_for('events') }}">Events</a></li>
+                <li><a href="{{ url_for('albums') }}">Albums</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="container main-content">
         {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for message in messages %}
-                        <div class="alert">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+            <div class="alert">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
 
         {% block content %}{% endblock %}
@@ -37,4 +40,5 @@
         <p>&copy; 2024 Event Manager System</p>
     </footer>
 </body>
+
 </html>

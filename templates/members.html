@@ -9,7 +9,7 @@
     <div class="form-section">
         <div class="card">
             <h2>Add New Member</h2>
-            <form method="POST" action="{{ url_for('members') }}">
+            <form method="POST" action="{{ url_for('members') }}" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="name">Full Name</label>
                     <input type="text" id="name" name="name" required placeholder="John Doe">
@@ -17,6 +17,10 @@
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="profile_image">Profile Photo</label>
+                    <input type="file" id="profile_image" name="profile_image" accept="image/*">
                 </div>
                 <button type="submit" class="btn-primary">Add Member</button>
             </form>
@@ -31,6 +35,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Avatar</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Joined</th>
@@ -40,6 +45,14 @@
                         {% for member in members %}
                         <tr>
                             <td>#{{ member.id }}</td>
+                            <td>
+                                {% if member.profile_image %}
+                                <img src="{{ url_for('static', filename='uploads/' + member.profile_image) }}"
+                                    alt="Avatar" class="avatar-small">
+                                {% else %}
+                                <div class="avatar-placeholder">{{ member.name[0] }}</div>
+                                {% endif %}
+                            </td>
                             <td>{{ member.name }}</td>
                             <td>{{ member.email }}</td>
                             <td>{{ member.join_date.strftime('%Y-%m-%d') }}</td>

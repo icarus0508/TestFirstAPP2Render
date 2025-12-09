@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Photo Albums</h1>
+</div>
+
+<div class="albums-grid">
+    {% for event in events %}
+    <div class="album-card">
+        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="album-link">
+            <div class="album-cover">
+                {% if event.photos %}
+                <img src="{{ url_for('static', filename='uploads/' + event.photos[0].filename) }}"
+                    alt="{{ event.title }}">
+                {% else %}
+                <div class="album-placeholder">
+                    <span>No Photos</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="album-info">
+                <h3>{{ event.title }}</h3>
+                <p>{{ event.photos|length }} photos</p>
+                <span class="album-date">{{ event.date.strftime('%Y-%m-%d') }}</span>
+            </div>
+        </a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No events found.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
