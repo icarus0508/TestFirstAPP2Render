@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Events</h1>
+</div>
+
+<div class="content-grid">
+    <div class="form-section">
+        <div class="card">
+            <h2>Create Event</h2>
+            <form method="POST" action="{{ url_for('events') }}">
+                <div class="form-group">
+                    <label for="title">Event Title</label>
+                    <input type="text" id="title" name="title" required placeholder="Annual Meetup">
+                </div>
+                <div class="form-group">
+                    <label for="date">Date & Time</label>
+                    <input type="datetime-local" id="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3" placeholder="Event details..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Create Event</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="list-section">
+        <div class="card">
+            <h2>All Events</h2>
+            <div class="event-cards-list">
+                {% for event in events %}
+                <div class="event-item">
+                    <div class="event-item-header">
+                        <h3>{{ event.title }}</h3>
+                        <span class="event-date-badge">{{ event.date.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                    <p>{{ event.description }}</p>
+                    <div class="event-item-footer">
+                        <span>{{ event.participants|length }} Participants</span>
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn-secondary">Manage</a>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center">No events created yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

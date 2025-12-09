@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Dashboard</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Members</h3>
+            <p class="stat-number">{{ member_count }}</p>
+            <a href="{{ url_for('members') }}" class="btn-text">Manage Members &rarr;</a>
+        </div>
+        <div class="stat-card">
+            <h3>Upcoming Events</h3>
+            <p class="stat-number">{{ recent_events|length }}</p>
+            <a href="{{ url_for('events') }}" class="btn-text">View Events &rarr;</a>
+        </div>
+    </div>
+
+    <section class="recent-section">
+        <h2>Recent Events</h2>
+        {% if recent_events %}
+        <div class="event-list">
+            {% for event in recent_events %}
+            <div class="event-card">
+                <div class="event-date">
+                    <span class="day">{{ event.date.strftime('%d') }}</span>
+                    <span class="month">{{ event.date.strftime('%b') }}</span>
+                </div>
+                <div class="event-info">
+                    <h3>{{ event.title }}</h3>
+                    <p>{{ event.description[:100] }}...</p>
+                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn-sm">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">No events found. <a href="{{ url_for('events') }}">Create one now!</a></p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

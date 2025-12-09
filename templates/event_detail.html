@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('events') }}" class="back-link">&larr; Back to Events</a>
+    <h1>{{ event.title }}</h1>
+    <span class="subtitle">{{ event.date.strftime('%A, %B %d, %Y at %I:%M %p') }}</span>
+</div>
+
+<div class="content-grid">
+    <div class="form-section">
+        <div class="card">
+            <h2>Add Participant</h2>
+            <form method="POST" action="{{ url_for('event_detail', event_id=event.id) }}">
+                <div class="form-group">
+                    <label for="member_id">Select Member</label>
+                    <select name="member_id" id="member_id" required>
+                        <option value="">-- Select a member --</option>
+                        {% for member in available_members %}
+                        <option value="{{ member.id }}">{{ member.name }} ({{ member.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if available_members %}
+                <button type="submit" class="btn-primary">Add to Event</button>
+                {% else %}
+                <p class="info-text">All current members are already participating!</p>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="card mt-4">
+            <h3>Event Details</h3>
+            <p>{{ event.description }}</p>
+        </div>
+    </div>
+
+    <div class="list-section">
+        <div class="card">
+            <h2>Participants ({{ event.participants|length }})</h2>
+            <ul class="participant-list">
+                {% for participant in event.participants %}
+                <li class="participant-item">
+                    <div class="participant-info">
+                        <span class="participant-name">{{ participant.name }}</span>
+                        <span class="participant-email">{{ participant.email }}</span>
+                    </div>
+                    <span class="status-badge">Joined</span>
+                </li>
+                {% else %}
+                <li class="empty-list">No participants yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
